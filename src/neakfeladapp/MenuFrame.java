@@ -36,16 +36,17 @@ public class MenuFrame extends JFrame {
         // Adatok menü
         JMenu dataMenu = new JMenu("Adatok");
         JMenuItem listItem = new JMenuItem("Listázás");
-        JMenuItem addItem = new JMenuItem("Hozzáadás");
-        JMenuItem searchItem = new JMenuItem("Keresés");
+        JMenuItem callProcItem = new JMenuItem("Időszaki adatok feladása");
+            callProcItem.addActionListener(e -> {
+                ProcedureCallFrame procFrame = new ProcedureCallFrame();
+                procFrame.setVisible(true);
+            });
         
         listItem.addActionListener(e -> showMessage("Listázás funkció"));
-        addItem.addActionListener(e -> showMessage("Hozzáadás funkció"));
-        searchItem.addActionListener(e -> showMessage("Keresés funkció"));
+        callProcItem.addActionListener(e -> showMessage("Feladás funkció"));
         
         dataMenu.add(listItem);
-        dataMenu.add(addItem);
-        dataMenu.add(searchItem);
+        dataMenu.add(callProcItem);
         
         // Súgó menü
         JMenu helpMenu = new JMenu("Súgó");
@@ -71,11 +72,15 @@ public class MenuFrame extends JFrame {
                             NaploListFrame listFrame = new NaploListFrame();
                             listFrame.setVisible(true);
                     });
-        JButton btn2 = new JButton("Új rekord");
+        JButton btn2 = new JButton("Időszaki adatok feladása");
+        btn2.addActionListener(e -> {
+            ProcedureCallFrame procFrame = new ProcedureCallFrame();
+            procFrame.setVisible(true);
+        });                            
         JButton btn3 = new JButton("Keresés");
         JButton btn4 = new JButton("Kijelentkezés");
         
-        btn2.addActionListener(e -> showMessage("Új rekord felvitele"));
+
         btn3.addActionListener(e -> showMessage("Keresés az adatbázisban"));
         btn4.addActionListener(e -> logout());
         
