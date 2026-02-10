@@ -8,19 +8,23 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.sql.*;
+import java.util.prefs.Preferences;
 
 /**
  *
  * @author tarna
  */
 public class LoginFrame extends JFrame {
-private JTextField usernameField;
+    
+    private JTextField usernameField;
     private JPasswordField passwordField;
+    private JCheckBox rememberMeCheckbox;
     private JButton loginButton;
+    private static final Preferences prefs = Preferences.userNodeForPackage(LoginFrame.class);
     
     public LoginFrame() {
         setTitle("Bejelentkezés");
-        setSize(350, 200);
+        setSize(350, 230);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         
@@ -51,9 +55,16 @@ private JTextField usernameField;
         passwordField = new JPasswordField(15);
         panel.add(passwordField, gbc);
         
-        // Belépés gomb
+        // Emlékezz rám checkbox
         gbc.gridx = 1;
         gbc.gridy = 2;
+        gbc.anchor = GridBagConstraints.WEST;
+        rememberMeCheckbox = new JCheckBox("Emlékezz rám");
+        panel.add(rememberMeCheckbox, gbc);
+        
+        // Belépés gomb
+        gbc.gridx = 1;
+        gbc.gridy = 3;
         gbc.anchor = GridBagConstraints.CENTER;
         loginButton = new JButton("Belépés");
         panel.add(loginButton, gbc);
@@ -77,7 +88,33 @@ private JTextField usernameField;
                 }
             }
         });
+        
+         // Mentett adatok betöltése
+        loadSavedCredentials();       
     }
+    
+    
+    
+    private void loadSavedCredentials() {
+        String savedUsername = prefs.get("username", "");
+        boolean rememberMe = prefs.getBoolean("rememberMe", false);
+        
+        if (rememberMe && !savedUsername.isEmpty()) {
+            usernameField.setText(savedUsername);
+            rememberMeCheckbox.setSelected(true);
+            passwordField.requestFocus();
+        }
+    }
+    
+    private void saveCredentials(String username, boolean rememberMe) {
+        if (rememberMe) {
+            prefs.put("username", username);
+            prefs.putBoolean("rememberMe", true);
+        } else {
+            prefs.remove("username");
+            prefs.putBoolean("rememberMe", false);
+        }
+    }  
     
     private void login() {
         String username = usernameField.getText().trim();
@@ -125,8 +162,11 @@ private JTextField usernameField;
                     cstmt2.execute();
             
                     // Visszatérési érték lekérése
-                    String fullName = cstmt2.getString(1);      ;            
-                
+                    String fullName = cstmt2.getString(1);      
+                    
+                    // Emlékezz rám funkció mentése
+                    saveCredentials(username, rememberMeCheckbox.isSelected()); 
+                    
                     JOptionPane.showMessageDialog(this, 
                         "Sikeres bejelentkezés!\nÜdvözöljük: " + fullName, 
                         "Siker", 
