@@ -35,7 +35,8 @@ public class MenuFrame extends JFrame {
         
         // Adatok menü
         JMenu dataMenu = new JMenu("Adatok");
-        JMenuItem listItem = new JMenuItem("Listázás");
+        JMenuItem listItem = new JMenuItem("Napló riport");
+        JMenuItem listItem2 = new JMenuItem("Fedezet riport");
         JMenuItem callProcItem = new JMenuItem("Időszaki adatok feladása");
             callProcItem.addActionListener(e -> {
                 ProcedureCallFrame procFrame = new ProcedureCallFrame();
@@ -43,6 +44,7 @@ public class MenuFrame extends JFrame {
             });
         
         listItem.addActionListener(e -> showMessage("Listázás funkció"));
+        listItem2.addActionListener(e -> showMessage("Fedzet riport funkció"));
         callProcItem.addActionListener(e -> showMessage("Feladás funkció"));
         
         dataMenu.add(listItem);
@@ -67,7 +69,7 @@ public class MenuFrame extends JFrame {
         JPanel panel = new JPanel(new GridLayout(4, 1, 10, 10));
         panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         
-        JButton btn1 = new JButton("Adatok listázása");
+        JButton btn1 = new JButton("Napló listázása");
                             btn1.addActionListener(e -> {
                             NaploListFrame listFrame = new NaploListFrame();
                             listFrame.setVisible(true);
@@ -77,16 +79,19 @@ public class MenuFrame extends JFrame {
             ProcedureCallFrame procFrame = new ProcedureCallFrame();
             procFrame.setVisible(true);
         });                            
-        JButton btn3 = new JButton("Keresés");
+        JButton btn3 = new JButton("Fedezet riport");
+                            btn3.addActionListener(e -> {
+                            FedListFrame listFrame = new FedListFrame();
+                            listFrame.setVisible(true);
+                    });
         JButton btn4 = new JButton("Kijelentkezés");
         
 
-        btn3.addActionListener(e -> showMessage("Keresés az adatbázisban"));
         btn4.addActionListener(e -> logout());
         
         panel.add(btn1);
-        panel.add(btn2);
         panel.add(btn3);
+        panel.add(btn2);       
         panel.add(btn4);
         
         add(panel);

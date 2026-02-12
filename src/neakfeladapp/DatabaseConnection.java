@@ -14,7 +14,8 @@ import java.sql.SQLException;
  */
 public class DatabaseConnection {
     
-    private static final String URL = "jdbc:oracle:thin:@10.120.26.21:1521:kvik";
+    // dtr2 private static final String URL = "jdbc:oracle:thin:@10.120.26.21:1521:kvik";
+    private static final String URL = "jdbc:oracle:thin:@terminal:1521:kvik";
     private static final String DB_USER = "kvikmod";
     private static final String DB_PASSWORD = "kiscelli18";
     
