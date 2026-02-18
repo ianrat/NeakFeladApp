@@ -34,7 +34,7 @@ public class ProcedureCallFrame extends JFrame {
         gbc.insets = new Insets(5, 5, 5, 5);
         gbc.anchor = GridBagConstraints.WEST;
         
-        // Alkalmazott választó
+        // Intézmény választó
         gbc.gridx = 0;
         gbc.gridy = 0;
         inputPanel.add(new JLabel("Intézmény:"), gbc);
@@ -46,7 +46,7 @@ public class ProcedureCallFrame extends JFrame {
         intezmenyCombo.setPreferredSize(new Dimension(300, 25));
         inputPanel.add(intezmenyCombo, gbc);
         
-        // Emelés százalék
+        // Időszak
         gbc.gridx = 0;
         gbc.gridy = 1;
         gbc.fill = GridBagConstraints.NONE;

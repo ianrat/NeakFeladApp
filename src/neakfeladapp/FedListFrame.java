@@ -30,37 +30,64 @@ public class FedListFrame extends JFrame {
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         
-        // Főpanel
         JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
         mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-     
-        // Felső panel - keresés és gombok
-        JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        // Intézmény választó
-
-        JLabel intezmenyLabel = new JLabel("Intézmény:");
-        intezmenyCombo = new JComboBox<>();
-        intezmenyCombo.setPreferredSize(new Dimension(300, 25));
-   
-        // Napló választó
-
-        JLabel naploLabel = new JLabel("Napló:");
-        naploCombo = new JComboBox<>();
-        naploCombo.setPreferredSize(new Dimension(300, 25));
         
-        JLabel searchLabel = new JLabel("Keresés:");
+        // Felső panel
+        JPanel topPanel = new JPanel(new GridBagLayout());
+        topPanel.setBorder(BorderFactory.createTitledBorder("Szűrési feltételek"));
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        
+        // Intézmény
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.weightx = 0;
+        topPanel.add(new JLabel("Intézmény:"), gbc);
+        
+        gbc.gridx = 1;
+        gbc.weightx = 1.0;
+        intezmenyCombo = new JComboBox<>();
+        topPanel.add(intezmenyCombo, gbc);
+        
+        // Napló
+        gbc.gridx = 2;
+        gbc.gridy = 0;
+        gbc.weightx = 0;
+        topPanel.add(new JLabel("Napló:"), gbc);
+        
+        gbc.gridx = 3;
+        gbc.weightx = 0;
+        naploCombo = new JComboBox<>();
+        topPanel.add(naploCombo, gbc);
+        
+        // Keresés
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.weightx = 0;
+        topPanel.add(new JLabel("Keresés:"), gbc);
+        
+        gbc.gridx = 1;
+        gbc.weightx = 1.0;
         searchField = new JTextField(20);
+        topPanel.add(searchField, gbc);
+        
+        // Gombok
+        gbc.gridx = 2;
+        gbc.gridy = 1;
+        gbc.gridwidth = 2;
+        gbc.anchor = GridBagConstraints.CENTER;
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         JButton refreshButton = new JButton("Frissítés");
         JButton closeButton = new JButton("Bezárás");
+        buttonPanel.add(refreshButton);
+        buttonPanel.add(closeButton);
+        topPanel.add(buttonPanel, gbc);
         
-        topPanel.add(intezmenyLabel);
-        topPanel.add(intezmenyCombo);
-        topPanel.add(naploLabel);
-        topPanel.add(naploCombo);        
-        topPanel.add(searchLabel);
-        topPanel.add(searchField);
-        topPanel.add(refreshButton);
-        topPanel.add(closeButton);
+        mainPanel.add(topPanel, BorderLayout.NORTH);
+        add(mainPanel);
         
         // Táblázat létrehozása
         String[] columnNames = {"Bev/Kiad", "Kód", "Név", "Fed.kód", "Fed.név", "Mennyiség", "Megys", "Egységár", "Érték"};
@@ -76,9 +103,10 @@ public class FedListFrame extends JFrame {
         table.setAutoCreateRowSorter(true); // Oszlopokra kattintva rendezés
         
         // Oszlopszélességek beállítása
+        table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         table.getColumnModel().getColumn(0).setPreferredWidth(50);   // Bevét/kiadás
         table.getColumnModel().getColumn(1).setPreferredWidth(80);  // Kód
-        table.getColumnModel().getColumn(2).setPreferredWidth(150);  // NÉv
+        table.getColumnModel().getColumn(2).setPreferredWidth(250);  // NÉv
         table.getColumnModel().getColumn(3).setPreferredWidth(80);  // fakód
         table.getColumnModel().getColumn(4).setPreferredWidth(150);  // fanév
         table.getColumnModel().getColumn(5).setPreferredWidth(100);  // menny
