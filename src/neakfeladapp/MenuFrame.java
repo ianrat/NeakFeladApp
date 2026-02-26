@@ -48,6 +48,7 @@ public class MenuFrame extends JFrame {
         callProcItem.addActionListener(e -> showMessage("Feladás funkció"));
         
         dataMenu.add(listItem);
+        dataMenu.add(listItem2);
         dataMenu.add(callProcItem);
         
         // Súgó menü

@@ -25,7 +25,7 @@ public class FedListFrame extends JFrame {
     private TableRowSorter<DefaultTableModel> sorter;
     
     public FedListFrame() {
-        setTitle("Feladási napló");
+        setTitle("Intézmény összesen fedezet");
         setSize(900, 600);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);

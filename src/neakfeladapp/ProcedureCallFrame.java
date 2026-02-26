@@ -153,7 +153,7 @@ public class ProcedureCallFrame extends JFrame {
         
         // Procedure hívása
         try (Connection conn = DatabaseConnection.getConnection();
-             CallableStatement cstmt = conn.prepareCall("{call feladas(?, ?)}")) {
+             CallableStatement cstmt = conn.prepareCall("{call neak_felad.felad_java_hiv(?, ?)}")) {
             
             // IN paraméterek
             cstmt.setInt(1, id);
