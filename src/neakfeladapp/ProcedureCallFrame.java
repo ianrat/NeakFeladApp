@@ -5,8 +5,10 @@
 package neakfeladapp;
 
 import javax.swing.*;
+import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.sql.*;
+import javax.swing.table.DefaultTableModel;
 /**
  *
  * @author tk
@@ -15,11 +17,14 @@ public class ProcedureCallFrame extends JFrame {
     
     private JComboBox<ComboItem> intezmenyCombo;
     private JTextField idoszakField;
+    private JTextField megjField;
     private JTextArea resultArea;
+    private JTable table;
+    private DefaultTableModel tableModel;
     
     public ProcedureCallFrame() {
         setTitle("Havi adatok feladása");
-        setSize(600, 400);
+        setSize(600, 600);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         
@@ -58,20 +63,33 @@ public class ProcedureCallFrame extends JFrame {
         idoszakField = new JTextField("2025");
         idoszakField.setPreferredSize(new Dimension(100, 25));
         inputPanel.add(idoszakField, gbc);
+ 
+        // Megj
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.weightx = 0;
+        inputPanel.add(new JLabel("Megjegyzés:"), gbc);
+        
+        gbc.gridx = 1;
+        gbc.fill = GridBagConstraints.HORIZONTAL;      
+        megjField = new JTextField("");
+        megjField.setPreferredSize(new Dimension(100, 25));
+        inputPanel.add(megjField, gbc);
         
         // Gombok panel
         gbc.gridx = 0;
-        gbc.gridy = 2;
+        gbc.gridy = 3;
         gbc.gridwidth = 2;
         gbc.anchor = GridBagConstraints.CENTER;
         JPanel buttonPanel = new JPanel(new FlowLayout());
         
         JButton executeButton = new JButton("Indítás");
-        JButton refreshButton = new JButton("Lista frissítése");
+        //JButton refreshButton = new JButton("Lista frissítése");
         JButton closeButton = new JButton("Bezárás");
         
         buttonPanel.add(executeButton);
-        buttonPanel.add(refreshButton);
+        //buttonPanel.add(refreshButton);
         buttonPanel.add(closeButton);
         inputPanel.add(buttonPanel, gbc);
         
@@ -79,25 +97,50 @@ public class ProcedureCallFrame extends JFrame {
         JPanel resultPanel = new JPanel(new BorderLayout());
         resultPanel.setBorder(BorderFactory.createTitledBorder("Eredmény"));
         
-        resultArea = new JTextArea(10, 40);
+        resultArea = new JTextArea(10, 20);
         resultArea.setEditable(false);
         resultArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
         JScrollPane scrollPane = new JScrollPane(resultArea);
         resultPanel.add(scrollPane, BorderLayout.CENTER);
         
+        // Táblázat létrehozása
+        String[] columnNames = {"ID", "Kórházkód", "Év", "Hó", "Dátum", "Megj"};
+        tableModel = new DefaultTableModel(columnNames, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false; // Táblázat nem szerkeszthető
+            }
+        };
+        
+        table = new JTable(tableModel);
+        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        table.setAutoCreateRowSorter(true); // Oszlopokra kattintva rendezés
+        
+        // Oszlopszélességek beállítása
+        table.getColumnModel().getColumn(0).setPreferredWidth(50);   // ID
+        table.getColumnModel().getColumn(1).setPreferredWidth(100);  // Kórházkód
+        table.getColumnModel().getColumn(2).setPreferredWidth(40);  // Év
+        table.getColumnModel().getColumn(3).setPreferredWidth(40);  // Hó
+        table.getColumnModel().getColumn(4).setPreferredWidth(100);  // Dátum
+        table.getColumnModel().getColumn(5).setPreferredWidth(120);  // megj
+        
+        JScrollPane scrollPanel = new JScrollPane(table);
+
         // Panelek hozzáadása
         mainPanel.add(inputPanel, BorderLayout.NORTH);
-        mainPanel.add(resultPanel, BorderLayout.CENTER);
+        mainPanel.add(resultPanel, BorderLayout.SOUTH);
+        mainPanel.add(scrollPanel, BorderLayout.CENTER);
         
         add(mainPanel);
         
         // Event handlerek
         executeButton.addActionListener(e -> executeProcedure());
-        refreshButton.addActionListener(e -> loadAeekInt());
+        //refreshButton.addActionListener(e -> loadAeekInt());
         closeButton.addActionListener(e -> dispose());
         
         // Adatok betöltése
         loadAeekInt();
+        loadNaplo();
     }
     
     private void loadAeekInt() {
@@ -121,7 +164,7 @@ public class ProcedureCallFrame extends JFrame {
                 intezmenyCombo.addItem(new ComboItem(id, displayText));
             }
             
-            resultArea.append("✓ Intézmnyek betöltve: " + intezmenyCombo.getItemCount() + " fő\n");
+            //resultArea.append("✓ Intézmnyek betöltve: " + intezmenyCombo.getItemCount() + " fő\n");
             
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this,
@@ -146,18 +189,20 @@ public class ProcedureCallFrame extends JFrame {
         int id = selectedItem.getId();
         
         // Emelés százalék
-        String idoszak;
+        String idoszak, megj;
    
         idoszak = idoszakField.getText().trim();
+        megj = megjField.getText().trim();
    
         
         // Procedure hívása
         try (Connection conn = DatabaseConnection.getConnection();
-             CallableStatement cstmt = conn.prepareCall("{call neak_felad.felad_java_hiv(?, ?)}")) {
+             CallableStatement cstmt = conn.prepareCall("{call neak_felad.felad_java_hiv(?, ?, ?)}")) {
             
             // IN paraméterek
             cstmt.setInt(1, id);
             cstmt.setString(2, idoszak);
+            cstmt.setString(3, megj);
             
            
             // Végrehajtás
@@ -168,11 +213,14 @@ public class ProcedureCallFrame extends JFrame {
             resultArea.append("\n=== Végrehajtás ===\n");
             resultArea.append("Intezmeny: " + id + "\n");
             resultArea.append("Időszak: " + idoszak + "%\n");
+            resultArea.append("Megjegyzés: " + megj + "%\n");
             resultArea.append("Feladás lefutott\n");
             resultArea.append("==================\n");
             
-            // Lista frissítése
-            loadAeekInt();
+            // Lista frissítése fölösleges
+            //loadAeekInt();
+            // Adatok betöltése
+            loadNaplo();
             
             JOptionPane.showMessageDialog(this,
                 idoszak,
@@ -208,4 +256,35 @@ public class ProcedureCallFrame extends JFrame {
             return displayText;
         }
     }
+    private void loadNaplo() {
+        // Táblázat ürítése
+        tableModel.setRowCount(0);
+        
+        String sql = "SELECT naplo_id, korhaz_kod, ev, ho, felad_dt, megj FROM neak_felad.naplo ORDER BY naplo_id desc FETCH FIRST 5 ROWS ONLY";
+        
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
+            
+            while (rs.next()) {
+                Object[] row = {
+                    rs.getInt("naplo_id"),
+                    rs.getString("korhaz_kod"),
+                    rs.getString("ev"),
+                    rs.getString("ho"),
+                    rs.getDate("felad_dt"),
+                    rs.getString("megj")
+                    
+                };
+                tableModel.addRow(row);
+            }
+            
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this,
+                "Hiba az adatok betöltése során:\n" + e.getMessage(),
+                "Adatbázis hiba",
+                JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        }
+    }    
 }

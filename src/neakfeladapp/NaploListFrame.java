@@ -100,7 +100,7 @@ public class NaploListFrame extends JFrame {
         
         // Frissítés gomb
         refreshButton.addActionListener(e -> {
-            loadEmployees();
+            loadNaplo();
             statusLabel.setText("Sorok száma: " + table.getRowCount());
         });
         
@@ -108,11 +108,11 @@ public class NaploListFrame extends JFrame {
         closeButton.addActionListener(e -> dispose());
         
         // Adatok betöltése
-        loadEmployees();
+        loadNaplo();
         statusLabel.setText("Sorok száma: " + table.getRowCount());
     }
     
-    private void loadEmployees() {
+    private void loadNaplo() {
         // Táblázat ürítése
         tableModel.setRowCount(0);
         
