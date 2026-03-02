@@ -42,7 +42,7 @@ public class MenuFrame extends JFrame {
                 ProcedureCallFrame procFrame = new ProcedureCallFrame();
                 procFrame.setVisible(true);
             });
-        
+       
         listItem.addActionListener(e -> showMessage("Listázás funkció"));
         listItem2.addActionListener(e -> showMessage("Fedzet riport funkció"));
         callProcItem.addActionListener(e -> showMessage("Feladás funkció"));
@@ -50,6 +50,16 @@ public class MenuFrame extends JFrame {
         dataMenu.add(listItem);
         dataMenu.add(listItem2);
         dataMenu.add(callProcItem);
+
+        // Admin menü
+        JMenu adminMenu = new JMenu("Adminisztráció");
+        JMenuItem userMgmtItem = new JMenuItem("Felhasználó karbantartás");
+        userMgmtItem.addActionListener(e -> {
+            UserManagementFrame userFrame = new UserManagementFrame();
+            userFrame.setVisible(true);
+        });
+        adminMenu.add(userMgmtItem);
+        
         
         // Súgó menü
         JMenu helpMenu = new JMenu("Súgó");
@@ -63,6 +73,7 @@ public class MenuFrame extends JFrame {
         
         menuBar.add(fileMenu);
         menuBar.add(dataMenu);
+        menuBar.add(adminMenu);                
         menuBar.add(helpMenu);
         setJMenuBar(menuBar);
         
