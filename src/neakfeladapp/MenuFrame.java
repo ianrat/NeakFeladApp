@@ -36,17 +36,24 @@ public class MenuFrame extends JFrame {
         // Adatok menü
         JMenu dataMenu = new JMenu("Adatok");
         JMenuItem listItem = new JMenuItem("Napló riport");
+        listItem.addActionListener(e -> {
+            NaploListFrame listFrame = new NaploListFrame();
+            listFrame.setVisible(true);
+        });
+
         JMenuItem listItem2 = new JMenuItem("Fedezet riport");
-        JMenuItem callProcItem = new JMenuItem("Időszaki adatok feladása");
-            callProcItem.addActionListener(e -> {
-                ProcedureCallFrame procFrame = new ProcedureCallFrame();
-                procFrame.setVisible(true);
-            });
-       
-        listItem.addActionListener(e -> showMessage("Listázás funkció"));
-        listItem2.addActionListener(e -> showMessage("Fedzet riport funkció"));
-        callProcItem.addActionListener(e -> showMessage("Feladás funkció"));
+        listItem2.addActionListener(e -> {
+            FedListFrame listFrame2 = new FedListFrame();
+            listFrame2.setVisible(true);
+        });
         
+        JMenuItem callProcItem = new JMenuItem("Időszaki adatok feladása");
+        callProcItem.addActionListener(e -> {
+            ProcedureCallFrame procFrame = new ProcedureCallFrame();
+            procFrame.setVisible(true);
+        });
+       
+       
         dataMenu.add(listItem);
         dataMenu.add(listItem2);
         dataMenu.add(callProcItem);
