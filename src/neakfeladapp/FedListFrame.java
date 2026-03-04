@@ -26,7 +26,7 @@ public class FedListFrame extends JFrame {
     
     public FedListFrame() {
         setTitle("Intézmény összesen fedezet");
-        setSize(900, 600);
+        setSize(900, 800);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         
@@ -154,8 +154,12 @@ public class FedListFrame extends JFrame {
         
         // Frissítés gomb
         refreshButton.addActionListener(e -> {
+            setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+            refreshButton.setEnabled(false); 
             loadReport();
             statusLabel.setText("Sorok száma: " + table.getRowCount());
+            setCursor(Cursor.getDefaultCursor());
+            refreshButton.setEnabled(true);  // Gomb engedélyezése            
         });
         
         // Bezárás gomb
