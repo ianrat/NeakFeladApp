@@ -12,18 +12,36 @@ import java.text.DecimalFormat;
  * @author tk
  */
 class NumberRenderer extends DefaultTableCellRenderer {
-    private DecimalFormat formatter;
     
+    private int decimalPlaces;  // Tizedesjegyek száma
+    
+    // Konstruktor tizedesjegy nélkül (alapértelmezett 2)
     public NumberRenderer() {
+        this(2);  // Alapértelmezetten 2 tizedesjegy
+    }
+    
+    // Konstruktor tizedesjegyek számával
+    public NumberRenderer(int decimalPlaces) {
+        this.decimalPlaces = decimalPlaces;
         setHorizontalAlignment(SwingConstants.RIGHT);
-        formatter = new DecimalFormat("#,##0.00"); // vagy "#,##0" ha nincs tizedes
     }
     
     @Override
     protected void setValue(Object value) {
-        if (value instanceof Number) {
-            value = formatter.format(value);
+        if (value == null) {
+            setText("");
+        } else if (value instanceof Number) {
+            if (decimalPlaces == 0) {
+                // Egész szám formázás
+                setText(String.format("%,d", ((Number) value).intValue()));
+            } else {
+                // Tizedes formázás
+                String pattern = "%,." + decimalPlaces + "f";
+                setText(String.format(pattern, ((Number) value).doubleValue()));
+            }
+        } else {
+            setText(value.toString());
         }
-        super.setValue(value);
     }
 }
+

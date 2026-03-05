@@ -115,7 +115,7 @@ public class FedListFrame extends JFrame {
         table.getColumnModel().getColumn(8).setPreferredWidth(100);  // ertek
      
                         
-        NumberRenderer numberRenderer = new NumberRenderer();
+        NumberRenderer numberRenderer = new NumberRenderer(2);
 
         table.getColumnModel().getColumn(5).setCellRenderer(numberRenderer); // Mennyiség
         table.getColumnModel().getColumn(7).setCellRenderer(numberRenderer); // Egységár
