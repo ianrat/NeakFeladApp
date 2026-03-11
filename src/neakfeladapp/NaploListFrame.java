@@ -15,6 +15,8 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.sql.*;
+import java.util.List;
+import java.util.ArrayList;
 
 public class NaploListFrame extends JFrame {
     
@@ -23,6 +25,8 @@ public class NaploListFrame extends JFrame {
     private DefaultTableModel tableModel;
     private JTextField searchField;
     private TableRowSorter<DefaultTableModel> sorter;
+    private JSpinner feladDtSpinner;
+    private JCheckBox feladDtCheck; // opcionálissá tételhez
     
     public NaploListFrame() {
         setTitle("Feladási napló");
@@ -41,7 +45,14 @@ public class NaploListFrame extends JFrame {
         JLabel intezmenyLabel = new JLabel("Intézmény:");
         intezmenyCombo = new JComboBox<>();
         
-        
+        feladDtSpinner = new JSpinner(new SpinnerDateModel());
+        JSpinner.DateEditor editor = new JSpinner.DateEditor(feladDtSpinner, "yyyy.MM.dd.");
+        feladDtSpinner.setEditor(editor);
+        feladDtSpinner.setEnabled(false);
+
+        feladDtCheck = new JCheckBox("Feladás dátuma:");
+        feladDtCheck.addActionListener(e -> feladDtSpinner.setEnabled(feladDtCheck.isSelected()));
+
         
         JLabel searchLabel = new JLabel("Keresés:");
         searchField = new JTextField(20);
@@ -50,6 +61,8 @@ public class NaploListFrame extends JFrame {
         
         topPanel.add(intezmenyLabel);
         topPanel.add(intezmenyCombo);
+        topPanel.add(feladDtCheck);
+        topPanel.add(feladDtSpinner);        
         topPanel.add(searchLabel);
         topPanel.add(searchField);
         topPanel.add(refreshButton);
@@ -184,52 +197,65 @@ public class NaploListFrame extends JFrame {
     }
     
     private void loadNaplo() {
-        
+
         ComboItem selectedAeekInt = (ComboItem) intezmenyCombo.getSelectedItem();
-              
-        // Táblázat ürítése
+
+        java.util.Date selectedFeladDt = (java.util.Date) feladDtSpinner.getValue();
         tableModel.setRowCount(0);
-               
+
+        boolean filterByKorhaz = selectedAeekInt != null
+                && selectedAeekInt.getId() != null
+                && !selectedAeekInt.getId().isEmpty();
+        boolean filterByDatum = feladDtCheck.isSelected();
+
         String sql = "select n.korhaz_kod, i.nev_2 nev, n.ev, n.ho, to_char(n.felad_dt,'YYYY.MM.DD. HH24:MI') felad_dt, n.naplo_id, f.cnt eset_fej, t.cnt eset_tetel, m.cnt eset_mutet, khf.cnt khely_fej, kht.cnt khely_tetel\n" +
-                        "from neak_felad.naplo n\n" +
-                        "left join astar_bsoft_kon.t_aeek_int i on i.oepkod = n.korhaz_kod\n" +
-                        "left join (select naplo_id, count(*) cnt from neak_felad.eset_fej group by naplo_id) f on f.naplo_id = n.naplo_id\n" +
-                        "left join (select naplo_id, count(*) cnt from neak_felad.eset_tetel group by naplo_id) t on t.naplo_id = n.naplo_id\n" +
-                        "left join (select naplo_id, count(*) cnt from neak_felad.eset_mutet group by naplo_id) m on m.naplo_id = n.naplo_id\n" +
-                        "left join (select naplo_id, count(*) cnt from neak_felad.khely_fej group by naplo_id) khf on khf.naplo_id = n.naplo_id\n" +
-                        "left join (select naplo_id, count(*) cnt from neak_felad.khely_tetel group by naplo_id) kht on kht.naplo_id = n.naplo_id\n";
-        if (selectedAeekInt != null) {
-            sql +=      "where n.korhaz_kod = ?";
-        }        
-        sql +=          "order by n.felad_dt desc, n.naplo_id desc";
-         
+                     "from neak_felad.naplo n\n" +
+                     "left join astar_bsoft_kon.t_aeek_int i on i.oepkod = n.korhaz_kod\n" +
+                     "left join (select naplo_id, count(*) cnt from neak_felad.eset_fej group by naplo_id) f on f.naplo_id = n.naplo_id\n" +
+                     "left join (select naplo_id, count(*) cnt from neak_felad.eset_tetel group by naplo_id) t on t.naplo_id = n.naplo_id\n" +
+                     "left join (select naplo_id, count(*) cnt from neak_felad.eset_mutet group by naplo_id) m on m.naplo_id = n.naplo_id\n" +
+                     "left join (select naplo_id, count(*) cnt from neak_felad.khely_fej group by naplo_id) khf on khf.naplo_id = n.naplo_id\n" +
+                     "left join (select naplo_id, count(*) cnt from neak_felad.khely_tetel group by naplo_id) kht on kht.naplo_id = n.naplo_id\n";
+
+        List<String> conditions = new ArrayList<>();
+        if (filterByKorhaz) conditions.add("n.korhaz_kod = ?");
+        if (filterByDatum)  conditions.add("trunc(n.felad_dt) = trunc(?)");
+
+        if (!conditions.isEmpty()) {
+            sql += "where " + String.join(" and ", conditions) + "\n";
+        }
+        sql += "order by n.felad_dt desc, n.naplo_id desc";
+
         try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {;
-            if (selectedAeekInt != null) {
-                String oepkod = selectedAeekInt.getId();
-                pstmt.setString(1, oepkod);                  
-            } 
-             ResultSet rs = pstmt.executeQuery();
-            
-            while (rs.next()) {
-                Object[] row = {
-                    
-                    rs.getString("korhaz_kod"),
-                    rs.getString("nev"),
-                    rs.getString("ev"),
-                    rs.getString("ho"),
-                    rs.getString("felad_dt"),
-                    rs.getInt("naplo_id"),                    
-                    rs.getInt("eset_fej"),                    
-                    rs.getInt("eset_tetel"),                    
-                    rs.getInt("eset_mutet"),                    
-                    rs.getInt("khely_fej"),                    
-                    rs.getInt("khely_tetel")
-               
-                };
-                tableModel.addRow(row);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            int paramIndex = 1;
+            if (filterByKorhaz) {
+                pstmt.setString(paramIndex++, selectedAeekInt.getId());
             }
-            
+            if (filterByDatum) {
+                pstmt.setDate(paramIndex++, new java.sql.Date(selectedFeladDt.getTime()));
+            }
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    Object[] row = {
+                        rs.getString("korhaz_kod"),
+                        rs.getString("nev"),
+                        rs.getString("ev"),
+                        rs.getString("ho"),
+                        rs.getString("felad_dt"),
+                        rs.getInt("naplo_id"),
+                        rs.getInt("eset_fej"),
+                        rs.getInt("eset_tetel"),
+                        rs.getInt("eset_mutet"),
+                        rs.getInt("khely_fej"),
+                        rs.getInt("khely_tetel")
+                    };
+                    tableModel.addRow(row);
+                }
+            }
+
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this,
                 "Hiba az adatok betöltése során:\n" + e.getMessage(),
