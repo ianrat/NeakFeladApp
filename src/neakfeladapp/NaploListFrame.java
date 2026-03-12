@@ -30,7 +30,7 @@ public class NaploListFrame extends JFrame {
     
     public NaploListFrame() {
         setTitle("Feladási napló");
-        setSize(900, 600);
+        setSize(1000, 700);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         
@@ -38,13 +38,15 @@ public class NaploListFrame extends JFrame {
         JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
         mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         
-        // Felső panel - keresés és gombok
-        JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        // Felső panel - 2 soros elrendezés
+        JPanel topPanel = new JPanel(new GridLayout(2, 1, 0, 5));
+        topPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 5, 0));
 
-        // Intézmény
+        // 1. sor: Intézmény + Feladás dátuma
+        JPanel row1Panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 2));
         JLabel intezmenyLabel = new JLabel("Intézmény:");
         intezmenyCombo = new JComboBox<>();
-        
+
         feladDtSpinner = new JSpinner(new SpinnerDateModel());
         JSpinner.DateEditor editor = new JSpinner.DateEditor(feladDtSpinner, "yyyy.MM.dd.");
         feladDtSpinner.setEditor(editor);
@@ -53,20 +55,26 @@ public class NaploListFrame extends JFrame {
         feladDtCheck = new JCheckBox("Feladás dátuma:");
         feladDtCheck.addActionListener(e -> feladDtSpinner.setEnabled(feladDtCheck.isSelected()));
 
-        
+        row1Panel.add(intezmenyLabel);
+        row1Panel.add(intezmenyCombo);
+        row1Panel.add(Box.createHorizontalStrut(15));
+        row1Panel.add(feladDtCheck);
+        row1Panel.add(feladDtSpinner);
+
+        // 2. sor: Keresés + Gombok
+        JPanel row2Panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 2));
         JLabel searchLabel = new JLabel("Keresés:");
         searchField = new JTextField(20);
         JButton refreshButton = new JButton("Frissítés");
         JButton closeButton = new JButton("Bezárás");
-        
-        topPanel.add(intezmenyLabel);
-        topPanel.add(intezmenyCombo);
-        topPanel.add(feladDtCheck);
-        topPanel.add(feladDtSpinner);        
-        topPanel.add(searchLabel);
-        topPanel.add(searchField);
-        topPanel.add(refreshButton);
-        topPanel.add(closeButton);
+
+        row2Panel.add(searchLabel);
+        row2Panel.add(searchField);
+        row2Panel.add(refreshButton);
+        row2Panel.add(closeButton);
+
+        topPanel.add(row1Panel);
+        topPanel.add(row2Panel);
         
         // Táblázat létrehozása
         String[] columnNames = {"Kórház kód", "Név", "Év", "Hó", "Felad Dt", "Napló ID", "Esetek", "Eset tétel", "Eset műtét", "Khely fej", "Khely tétel"};
@@ -152,8 +160,12 @@ public class NaploListFrame extends JFrame {
         
         // Frissítés gomb
         refreshButton.addActionListener(e -> {
+            setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+            refreshButton.setEnabled(false);
             loadNaplo();
             statusLabel.setText("Sorok száma: " + table.getRowCount());
+            setCursor(Cursor.getDefaultCursor());
+            refreshButton.setEnabled(true);  // Gomb engedélyezése               
         });
         
         // Bezárás gomb
